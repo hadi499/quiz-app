@@ -1,0 +1,114 @@
+### Variabel baseUrl untuk mempermudah penggantian URL jika diperlukan
+@baseUrl = http://localhost:8080/api
+
+### ==========================================
+### QUIZ ENDPOINTS
+### ==========================================
+
+### 1. GET ALL QUIZZES
+GET {{baseUrl}}/quizzes
+
+###
+
+### 2. GET ONE QUIZ
+# Mengambil quiz beserta daftar pertanyaan di dalamnya
+GET {{baseUrl}}/quizzes/1
+
+###
+
+### 3. CREATE QUIZ
+POST {{baseUrl}}/quizzes
+Content-Type: application/json
+
+{
+  "title": "Kuis Sejarah Indonesia",
+  "category": "Sejarah"
+}
+
+###
+
+### 4. UPDATE QUIZ
+PUT {{baseUrl}}/quizzes/1
+Content-Type: application/json
+
+{
+  "title": "Kuis Sejarah Nasional Indonesia",
+  "category": "Sejarah Umum"
+}
+
+###
+
+### 5. DELETE QUIZ
+DELETE {{baseUrl}}/quizzes/1
+
+### ==========================================
+### QUESTION ENDPOINTS
+### ==========================================
+
+### 1. GET ALL QUESTIONS
+GET {{baseUrl}}/questions
+
+###
+
+### 2. GET ONE QUESTION
+GET {{baseUrl}}/questions/1
+
+###
+
+### 3. CREATE QUESTION (Max 10 per Quiz)
+# Pastikan quiz_id merujuk pada Quiz yang sudah ada di database
+POST {{baseUrl}}/questions
+Content-Type: application/json
+
+{
+  "quiz_id": 1,
+  "question": "Siapakah presiden pertama Indonesia?",
+  "options": [
+    "Soekarno",
+    "Soeharto",
+    "B.J. Habibie",
+    "Abdurrahman Wahid"
+  ],
+  "answer": 0
+}
+
+###
+
+### 4. CREATE QUESTION KEDUA
+POST {{baseUrl}}/questions
+Content-Type: application/json
+
+{
+  "quiz_id": 1,
+  "question": "Kapan hari kemerdekaan Indonesia?",
+  "options": [
+    "17 Agustus 1944",
+    "17 Agustus 1945",
+    "17 Agustus 1946",
+    "17 Agustus 1947"
+  ],
+  "answer": 1
+}
+
+###
+
+### 5. UPDATE QUESTION
+PUT {{baseUrl}}/questions/1
+Content-Type: application/json
+
+{
+  "quiz_id": 1,
+  "question": "Siapakah bapak proklamator dan presiden pertama Indonesia?",
+  "options": [
+    "Ir. Soekarno",
+    "Soeharto",
+    "B.J. Habibie",
+    "Abdurrahman Wahid"
+  ],
+  "answer": 0
+}
+
+###
+
+### 6. DELETE QUESTION
+DELETE {{baseUrl}}/questions/1
