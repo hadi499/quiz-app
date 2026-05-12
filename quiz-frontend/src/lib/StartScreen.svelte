@@ -1,9 +1,6 @@
 <script>
   export let quizzes = [];
   export let onSelectQuiz; // function(quiz)
-  export let onAdmin; // function()
-  export let user = null;
-  export let onLogout;
 </script>
 
 <div class="header-section text-center">
@@ -38,34 +35,6 @@
     {/each}
   </div>
 {/if}
-
-<div style="margin-top: 3rem; text-align: center;">
-  {#if !user}
-    <!-- belum login -->
-    <button class="btn-secondary small" on:click={onAdmin}> 🔐 Login </button>
-  {:else}
-    <!-- sudah login -->
-    <div style="margin-bottom: 0.5rem;">
-      👋 {user.username}
-    </div>
-
-    <div style="display: flex; gap: 0.5rem; justify-content: center;">
-      {#if user.role === "teacher"}
-        <button class="btn-secondary small" on:click={onAdmin}>
-          ⚙️ Admin
-        </button>
-      {/if}
-
-      <button
-        class="btn-secondary small"
-        style="color: #f87171; border-color: rgba(248,113,113,0.3);"
-        on:click={onLogout}
-      >
-        🚪 Logout
-      </button>
-    </div>
-  {/if}
-</div>
 
 <style>
   .text-center {

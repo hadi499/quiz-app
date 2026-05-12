@@ -1,233 +1,128 @@
 <script>
   import { onMount } from "svelte";
-  import StartScreen from "./lib/StartScreen.svelte";
-  import QuestionCard from "./lib/QuestionCard.svelte";
-  import ResultScreen from "./lib/ResultScreen.svelte";
-  import AdminDashboard from "./lib/admin/AdminDashboard.svelte";
-  import AuthForm from "./lib/AuthForm.svelte";
+  import { Router, Route, links, navigate } from "svelte-routing";
   import Modal from "./lib/Modal.svelte";
-
-  const API_URL = import.meta.env.VITE_API_URL;
-
-  let state = "start"; // 'start', 'quiz', 'result', 'admin', 'auth'
-  let quizzes = [];
-  let selectedQuiz = null;
-  let questions = [];
-  let currentIndex = 0;
-  let score = 0;
-  let userAnswers = []; // array of answers
-  let user = null;
-
-  let modalConfig = {
-    show: false,
-    title: "",
-    message: "",
-    type: "alert",
-    onConfirm: () => {},
-  };
-  function showAlert(msg) {
-    modalConfig = {
-      show: true,
-      title: "Notification",
-      message: msg,
-      type: "alert",
-      onConfirm: () => {},
-    };
-  }
+  import Home from "./routes/Home.svelte";
+  import Quiz from "./routes/Quiz.svelte";
+  import Result from "./routes/Result.svelte";
+  import Login from "./routes/Login.svelte";
+  import Admin from "./routes/Admin.svelte";
+  import {
+    appState,
+    fetchQuizzes,
+    initAuth,
+    handleLogout,
+  } from "./stores/quiz.svelte.js";
 
   onMount(async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/quizzes`);
-      const data = await res.json();
-      quizzes = data || [];
-    } catch (err) {
-      console.error(err);
-      showAlert(
-        "Failed to connect to backend server. Make sure it's running at http://localhost:8080.",
-      );
-    }
+    fetchQuizzes();
+    await initAuth();
   });
 
-  async function getMe() {
-    const token = localStorage.getItem("token");
-    if (!token) return null;
-
-    try {
-      const res = await fetch(`${API_URL}/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) return null;
-
-      return await res.json();
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
-  }
-  onMount(async () => {
-    const me = await getMe();
-
-    if (!me) {
-      localStorage.removeItem("token");
-      user = null;
-    } else {
-      user = me;
-    }
-  });
-
-  function selectQuiz(quiz) {
-    if (!quiz.questions || quiz.questions.length === 0) {
-      showAlert("This quiz has no questions yet!");
-      return;
-    }
-    selectedQuiz = quiz;
-    questions = quiz.questions;
-    currentIndex = 0;
-    score = 0;
-    userAnswers = [];
-    state = "quiz";
+  function onLogout() {
+    handleLogout();
+    navigate("/");
   }
 
-  function handleAnswer(event) {
-    const selected = event.detail.selected;
-    const currentQ = questions[currentIndex];
-    const isCorrect = selected === currentQ.answer;
-
-    if (isCorrect) {
-      score += 10;
-    }
-
-    userAnswers = [
-      ...userAnswers,
-      {
-        question: currentQ,
-        selected: selected,
-        isCorrect: isCorrect,
-        isTimeout: false,
-      },
-    ];
-
-    nextQuestion();
-  }
-
-  function handleTimeout() {
-    const currentQ = questions[currentIndex];
-    userAnswers = [
-      ...userAnswers,
-      {
-        question: currentQ,
-        selected: -1,
-        isCorrect: false,
-        isTimeout: true,
-      },
-    ];
-    nextQuestion();
-  }
-
-  function nextQuestion() {
-    if (currentIndex + 1 < questions.length) {
-      currentIndex++;
-    } else {
-      state = "result";
-    }
-  }
-
-  function restartQuiz() {
-    selectedQuiz = null;
-    state = "start";
-  }
-
-  async function goToAdmin() {
-    const user = await getMe();
-
-    if (!user) {
-      state = "auth";
-      return;
-    }
-
-    if (user.role === "teacher") {
-      state = "admin";
-    } else {
-      showAlert("Only teacher can access admin dashboard");
-    }
-  }
-
-  async function onLoginSuccess() {
-    user = await getMe();
-
-    if (user?.role === "teacher") {
-      state = "admin";
-    } else {
-      state = "start";
-    }
-  }
-
-  function onBackFromAuth() {
-    state = "start";
-  }
-
-  function handleLogout() {
-    localStorage.removeItem("token");
-    user = null; // ⬅️ penting
-    state = "start";
-  }
-
-  function exitAdmin() {
-    state = "start";
-    // refresh quizzes when exiting admin
-    fetch(`${API_URL}/api/quizzes`)
-      .then((res) => res.json())
-      .then((data) => (quizzes = data || []))
-      .catch((err) => console.error(err));
-  }
+  export let url = "";
 </script>
 
-<main>
-  {#if state === "start"}
-    <StartScreen
-      {quizzes}
-      {user}
-      onSelectQuiz={selectQuiz}
-      onAdmin={goToAdmin}
-      onLogout={handleLogout}
-    />
-  {:else if state === "admin"}
-    <AdminDashboard onExitAdmin={exitAdmin} onLogout={handleLogout} />
-  {:else if state === "auth"}
-    <AuthForm {onLoginSuccess} onBack={onBackFromAuth} />
-  {:else if state === "quiz"}
-    {#if questions[currentIndex]}
-      <QuestionCard
-        question={questions[currentIndex]}
-        timeLimit={selectedQuiz.timeLimit}
-        questionNumber={currentIndex + 1}
-        on:answer={handleAnswer}
-        on:timeout={handleTimeout}
-      />
-    {/if}
-  {:else if state === "result"}
-    <ResultScreen
-      {score}
-      total={questions.length * 10}
-      {userAnswers}
-      onRestart={restartQuiz}
-    />
-  {/if}
-</main>
+<div use:links>
+  <Router {url}>
+    <nav class="navbar">
+      <div class="navbar-inner">
+        <a href="/" class="nav-home">🏠 Home</a>
+        <div class="nav-right">
+          {#if !appState.user}
+            <a href="/login" class="btn-secondary small"> 🔐 Login </a>
+          {:else}
+            <span class="nav-user">👋 {appState.user.username}</span>
+            {#if appState.user.role === "teacher"}
+              <a href="/admin" class="btn-secondary small"> ⚙️ Admin </a>
+            {/if}
+            <button class="btn-secondary small btn-logout" on:click={onLogout}>
+              🚪 Logout
+            </button>
+          {/if}
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <Route path="/">
+        <Home />
+      </Route>
+      <Route path="/quiz">
+        <Quiz />
+      </Route>
+      <Route path="/result">
+        <Result />
+      </Route>
+      <Route path="/login">
+        <Login />
+      </Route>
+      <Route path="/admin">
+        <Admin />
+      </Route>
+      <Route path="*">
+        <Home />
+      </Route>
+    </main>
+  </Router>
+</div>
 
 <Modal
-  bind:show={modalConfig.show}
-  title={modalConfig.title}
-  message={modalConfig.message}
-  type={modalConfig.type}
-  onConfirm={modalConfig.onConfirm}
+  bind:show={appState.modal.show}
+  title={appState.modal.title}
+  message={appState.modal.message}
+  type={appState.modal.type}
+  onConfirm={appState.modal.onConfirm}
 />
 
 <style>
   main {
     width: 100%;
+    padding-top: 70px;
+  }
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(12px);
+  }
+  .navbar-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .nav-home {
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .nav-home:hover {
+    color: var(--accent-primary);
+  }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .nav-user {
+    font-weight: 600;
+  }
+  .btn-logout {
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.3);
+    text-decoration: none;
   }
 </style>

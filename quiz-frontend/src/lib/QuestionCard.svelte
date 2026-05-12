@@ -5,8 +5,8 @@
   export let question = { id: 0, question: "", options: [] };
   export let timeLimit = 10;
 
-  // 1. Tambahkan prop baru untuk nomor urut (default 1)
   export let questionNumber = 1;
+  export let totalQuestions = 1;
 
   let timeLeft;
   let timer;
@@ -39,9 +39,11 @@
 </script>
 
 <div class="glass-card">
-  <h3 style="margin-bottom: 15px; text-align: center;color: #FFC81E;">
-    No. {questionNumber}
-  </h3>
+  <div class="question-dots">
+    {#each Array(totalQuestions) as _, i}
+      <span class="dot" class:active={i === questionNumber - 1}></span>
+    {/each}
+  </div>
   <div class="timer-bar">
     <div class="timer-fill" style="width: {progressWidth}%"></div>
   </div>
@@ -105,5 +107,21 @@
     background: rgba(255, 255, 255, 0.1);
     border-color: var(--accent-primary);
     transform: translateX(4px);
+  }
+  .question-dots {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-bottom: 0.5rem;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    transition: background 0.3s ease;
+  }
+  .dot.active {
+    background: var(--accent-primary);
   }
 </style>

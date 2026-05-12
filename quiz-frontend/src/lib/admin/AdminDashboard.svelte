@@ -380,42 +380,4 @@
   .text-center {
     text-align: center;
   }
-
-  /* Shared Admin Button Styles */
-  :global(.btn-primary.small) {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    width: auto;
-    display: inline-block;
-  }
-  :global(.btn-secondary) {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  :global(.btn-secondary:hover) {
-    background: rgba(255, 255, 255, 0.2);
-  }
-  :global(.btn-secondary.small) {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-  }
-  :global(.btn-danger) {
-    background: var(--error);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  :global(.btn-danger:hover) {
-    background: #dc2626;
-  }
-  :global(.btn-danger.small) {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-  }
 </style>
