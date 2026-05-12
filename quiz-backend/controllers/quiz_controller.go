@@ -13,7 +13,7 @@ func GetQuizzes(c *gin.Context) {
 	var quizzes []models.Quiz
 
 	// Preload pertanyaan agar data questions ikut terambil
-	if err := database.DB.Preload("Questions").Order("id asc").Find(&quizzes).Error; err != nil {
+	if err := database.DB.Preload("Questions").Order("id desc").Find(&quizzes).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

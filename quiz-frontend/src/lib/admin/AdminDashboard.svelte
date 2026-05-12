@@ -195,12 +195,13 @@
       <div class="table-wrapper">
         <table class="data-table">
           <thead>
-            <tr>
+            <tr style="align-items: center;">
               <th>ID</th>
-              <th>QID</th>
+
               <th>Title</th>
               <th>Category</th>
               <th>Time</th>
+              <th>QID</th>
               <th>Questions</th>
               <th>Actions</th>
             </tr>
@@ -209,20 +210,23 @@
             {#each quizzes as quiz, index}
               <tr>
                 <td>{index + 1}</td>
-                <td>{quiz.id}</td>
+
                 <td>{quiz.title}</td>
                 <td><span class="badge">{quiz.category}</span></td>
                 <td>{quiz.timeLimit}</td>
+                <td style="color: salmon;">{quiz.id}</td>
                 <td>{quiz.questions?.length || 0}</td>
-                <td class="actions">
-                  <button
-                    class="btn-primary small"
-                    on:click={() => editQuiz(quiz)}>Edit</button
-                  >
-                  <button
-                    class="btn-danger small"
-                    on:click={() => requestDeleteQuiz(quiz.id)}>Delete</button
-                  >
+                <td>
+                  <div class="actions">
+                    <button
+                      class="btn-primary small"
+                      on:click={() => editQuiz(quiz)}>Edit</button
+                    >
+                    <button
+                      class="btn-danger small"
+                      on:click={() => requestDeleteQuiz(quiz.id)}>Delete</button
+                    >
+                  </div>
                 </td>
               </tr>
             {/each}
@@ -260,15 +264,17 @@
                 <td><span class="badge">{q.quiz_id}</span></td>
                 <td><span class="badge">{q.id}</span></td>
                 <td class="truncate">{q.question}</td>
-                <td class="actions">
-                  <button
-                    class="btn-primary small"
-                    on:click={() => editQuestion(q)}>Edit</button
-                  >
-                  <button
-                    class="btn-danger small"
-                    on:click={() => requestDeleteQuestion(q.id)}>Delete</button
-                  >
+                <td>
+                  <div class="actions">
+                    <button
+                      class="btn-primary small"
+                      on:click={() => editQuestion(q)}>Edit</button
+                    >
+                    <button
+                      class="btn-danger small"
+                      on:click={() => requestDeleteQuestion(q.id)}>Delete</button
+                    >
+                  </div>
                 </td>
               </tr>
             {/each}
@@ -316,24 +322,25 @@
   }
   .tabs {
     display: flex;
-    gap: 1rem;
+    gap: 0;
     margin-bottom: 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 0.5rem;
   }
   .tab-btn {
     background: none;
     border: none;
+    border-bottom: 2px solid transparent;
     color: var(--text-muted);
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     padding: 0.5rem 1rem;
-    transition: color 0.2s;
+    margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s;
   }
   .tab-btn.active {
     color: var(--accent-primary);
-    border-bottom: 2px solid var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
   }
   .tab-btn:hover {
     color: white;
@@ -376,6 +383,7 @@
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-size: 0.8rem;
+    white-space: nowrap;
   }
   .text-center {
     text-align: center;
