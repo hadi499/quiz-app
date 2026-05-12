@@ -65,14 +65,22 @@ func UpdateQuestion(c *gin.Context) {
 		return
 	}
 
-	// Bind data baru dari JSON
-	if err := c.ShouldBindJSON(&question); err != nil {
+	// Bind data baru dari JSON ke struct terpisah
+	var input models.Question
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	database.DB.Save(&question)
-	c.JSON(http.StatusOK, question)
+	// Pertahankan ID asli dari URL
+	input.ID = question.ID
+
+	if err := database.DB.Save(&input).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, input)
 }
 
 // DELETE: Menghapus pertanyaan
